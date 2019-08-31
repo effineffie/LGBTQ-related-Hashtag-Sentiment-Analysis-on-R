@@ -1,0 +1,66 @@
+#First Install the packages needed
+install.packages(“NLP”)
+install.packages("twitteR")
+install.packages("syuzhet")
+install.packages("tm")
+install.packages("SnowballC")
+install.packages("stringi")
+install.packages("topicmodels")
+install.packages("syuzhet")
+install.packages("ROAuth")
+install.packages("ggplot2")
+#import the libraries needed 
+library(NLP)
+library(twitteR)
+library(syuzhet)
+library(tm)
+library(SnowballC)
+library(stringi)
+library(topicmodels)
+library(syuzhet)
+library(ROAuth)
+library(ggplot2)
+#getting the twitter API authentication, replace the cosumer keys of your own
+consumer_key <- xxxxxx
+consumer_secret <- xxxxxx
+access_token <- xxxxxx
+access_secret <- xxxxxx
+setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
+#search 1,000 hashtagged Twitter posts in English, download as csv file
+#pride
+tweets_p <- searchTwitter("#pride", n=1000,lang = "en”)
+pride_tweets <- twListToDF(tweets_p)
+write.csv(gay_tweets, "#pride.csv")
+pride_text<- pride_tweets$text
+#Cleaning up the Twitter posts including removing links, capital case, hashtags, punctuation, links & etc.
+pride_text<- tolower(pride_text)
+pride_text <- gsub("rt", "", pride_text)
+pride_text <- gsub("@\\w+", "", pride_text)
+pride_text <- gsub("@\\w+", "", pride_text)
+pride_text <- gsub("[[:punct:]]", "", pride_text)
+pride_text <- gsub("http\\w+", "", pride_text)
+pride_text <- gsub("[ |\t]{2,}", "", pride_text)
+pride_text <- gsub("^ ", "", pride_text)
+pride_text <- gsub(" $", "", pride_text)
+Pride_text <- gsub("#.*","",pride_text)
+#Turn the cleaned texutal data into corpus
+pride_tweets.text.corpus <- Corpus(VectorSource(pride_text))
+#use sentiment analysis on the tweet corpus 
+mysentiment_pride<-get_nrc_sentiment((pride_text))
+Sentimentscores_pride<-data.frame(colSums(mysentiment_pride[,]))
+names(Sentimentscores_pride)<-"Score"
+Sentimentscores_pride<-cbind("sentiment"=rownames(Sentimentscores_pride),Sentimentscores_pride)
+rownames(Sentimentscores_pride)<-NULL
+#Data Visualisation of the NRC sentiment analysis results
+ggplot(data=Sentimentscores_pride,aes(x=sentiment,y=Score))+geom_bar(aes(fill=sentiment),stat = "identity")+
+  theme(legend.position="none")+
+  xlab("Sentiments")+ylab("scores")+ggtitle("Sentiments of people behind the tweets on #pride")#
+#Get the sentiment of different lexicons
+syuzhet_pride <- get_sentiment(pride_text,method="syuzhet")
+bing_pride <- get_sentiment(pride_text, method="bing")
+nrc_pride <- get_sentiment(pride_text, method="nrc")
+afinn_pride <- get_sentiment(pride_text, method="afinn")
+all_sentiments_pride <- data.frame(syuzhet, bing, afinn, nrc)
+
+#Additional visualisation using Wordcloud, not included in the dissertation:
+
