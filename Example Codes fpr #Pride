@@ -75,5 +75,4 @@ nrc_pride <- get_sentiment(pride_text, method="nrc")
 afinn_pride <- get_sentiment(pride_text, method="afinn")
 all_sentiments_pride <- data.frame(syuzhet, bing, afinn, nrc)
 
-#Additional visualisation using Wordcloud, not included in the dissertation:
-
+#Use the codes above on the other 8 hashtags
